@@ -1,6 +1,6 @@
 # VCT 2025 Match Outcome Prediction: can ML beat plain statistics?
 
-In this project I compared predicting professional Valorant (VCT) match winners with an XGBoost model vs to team ratings calculated based on team performance and stats from previous matches, developed both by me.
+In this project I compared predicting professional Valorant (VCT) match winners with an XGBoost model to team ratings calculated based on team performance and stats from previous matches, developed both by me.
 
 ## Results
 
@@ -12,29 +12,27 @@ The model saw decreased performance specifically at the two big LAN events, Mast
 
 ## How I trained the model
 
-The model primarily used round-margin momentum (how much a team has been winning/losing by, averaged over its last 5 maps) drives most of the model's decisions, aided by round win rates based on economy (pistol, eco, and full-buy rounds). No stats like  ADR, KAST, or any other player-level stat went into this model.
+The model primarily used round-margin momentum (how much a team has been winning/losing by, averaged over its last 5 maps), aided by round win rates based on economy (pistol, eco, and full-buy rounds). No stats like  ADR, KAST, or any other player-level stat went into the model.
+
+For the team-ratings, I used per-player statistics and ratings as well as shrinkage-blending and rolled them up into my own rolling team-ratings. To see the exact math, see main and cleaning.py.
 
 That exclusion is what, to me, made the overall result super interesting. This model (slightly) beats out a rating-based baseline using just economy data. I tried feeding the model the rating/ADR features too, both on their own and combined with the economy features, but on their own they land at about the same accuracy as the economy-only model, and combined, accuracy actually dropped (61.8% vs. 63.4%). My results suggest that recent round-level economic execution carries roughly as much predictive signal as player-based stats and rating for these matches, which I found surprising.
 
-### Something to note about my baseline
-
-For this project, I had initially use per-player statistics and ratings as well as shrinkage-blending and rolled them up into my own rolling team-ratings to feed into the model, however I found that including these in training actually made the model perform slightly worse. I did, however, notice that these personally calculated team ratings were pretty decent at predicting outcomes, so I decided to use them as a baseline.
-
 ## On the data
 
-Th data I used comes from Ryan Luong's VCT Kaggle
+The data I used comes from Ryan Luong's VCT Kaggle
 dataset(https://www.kaggle.com/datasets/ryanluong1/valorant-champion-tour-2021-2023-data)
 (2025 folder): per-player per-map stats (`overview25.csv`), per-map scores
 (`maps_scores25.csv`), and round-economy outcomes (`eco_stats.csv`). Economy data is missing for the China region, so China matches are
-excluded from the model (they're still counted in the baseline where rating
-data IS available).
+excluded from the model (they're still counted in the team-ratings where data IS available).
 
 ## Methods
 
-- Every rolling feature uses `shift(1)` before the window to avoid leakage. Additionally, The model is retrained at each tournament phase boundary using  matches from before that phase.
-- Model and baseline are scored on identical games. Baseline represents picking whichever team in a head-to-head matchup has the higher rating, while the model utilizes extreme gradient boosting (mentioned next) 
-- Uses XGBoost with (`max_depth=2`, heavy L1/L2 regularization, `min_child_weight=12`) given the
-dataset is relatively small.
+- Rolling features use `shift(1)` before the window to avoid leakage. 
+- Model is retrained at each tournament phase boundary using  matches from before that phase.
+- Model and ratings are scored on identical games.
+- I used XGBoost with (`max_depth=2`, heavy L1/L2 regularization, `min_child_weight=12`) given the
+dataset is relatively small
 
 ## How to run
 
