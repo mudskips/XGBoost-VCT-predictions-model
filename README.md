@@ -8,7 +8,7 @@ I've been interested in pro Valorant since I started playing in 2021. I wanted t
 
 ## Results
 
-The XGBoost model achieved 64.9% accuracy predicting the winner of a given match vs. 63.1% for the hand-calculated ratings on 504 regional-season matches (Stage 1 + Stage 2). Across all four eligible tournament phases in 2025 (Stage 1, Masters Toronto, Stage 2, Champions), the model had an overall accuracy of 63.4%, while choosing a winner based on the ratings calculations yielded aam ccuracy of 62.4%.
+The XGBoost model achieved 64.9% accuracy predicting the winner of a given match vs. 63.1% for the hand-calculated ratings on 252 regional-season matches (Stage 1 + Stage 2). Across all four eligible tournament phases in 2025 (Stage 1, Masters Toronto, Stage 2, Champions), the model had an overall accuracy of 63.4%, while choosing a winner based on the ratings calculations yielded aam ccuracy of 62.4%. Given the small sample size, I don't think it would be reasonable to say definitively which of these performed better, as the small difference could be attributed to luck on the model's side. Nonetheless, I still found this project fun and interesting to work through.
 
 ## Limitations
 
@@ -27,14 +27,6 @@ dataset(https://www.kaggle.com/datasets/ryanluong1/valorant-champion-tour-2021-2
 (2025 folder): per-player per-map stats (`overview25.csv`), per-map scores
 (`maps_scores25.csv`), and round-economy outcomes (`eco_stats.csv`). Economy data is missing for the China region, so China matches are
 excluded from the model (they're still counted in the team-ratings where data IS available).
-
-## Methods
-
-- Rolling features use `shift(1)` before the window to avoid leakage. 
-- Model is retrained at each tournament phase boundary using  matches from before that phase.
-- Model and ratings are scored on identical games.
-- I used XGBoost with (`max_depth=2`, heavy L1/L2 regularization, `min_child_weight=12`) given the
-dataset is relatively small
 
 ## How to run
 
